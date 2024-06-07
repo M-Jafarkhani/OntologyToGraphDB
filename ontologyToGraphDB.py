@@ -10,9 +10,9 @@ def main():
         ontology_url = config["OntologyUrl"]
 
     ontologyCrawler = OntologyCrawler(ontology_file, ontology_url)
-    (classes, object_properties) = ontologyCrawler.start()
+    ontologyCrawler.start()
 
-    dbPediaCrawler = DBPediaCrawler(classes, object_properties)
+    dbPediaCrawler = DBPediaCrawler()
     dbPediaCrawler.start()
 
 

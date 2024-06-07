@@ -1,3 +1,5 @@
+from json import JSONEncoder
+
 class Property:
     label: str
     prop_iri: str
@@ -15,7 +17,10 @@ class ClassMetaData:
         self.label = label
         self.properties = list()
 
-
+class DataEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__
+        
 class ObjectPropertyMetaData:
     label: str
     domain_iri: str
@@ -29,6 +34,13 @@ class ObjectPropertyMetaData:
         self.domain_label = domain_label
         self.range_iri = range_iri
         self.range_label = range_label
+
+    def toJSON(self):
+        return json.dumps(
+            self,
+            default=lambda o: o.__dict__,
+            sort_keys=True,
+            indent=4)
 
 
 def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):

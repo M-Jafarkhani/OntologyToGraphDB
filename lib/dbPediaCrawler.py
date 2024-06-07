@@ -14,16 +14,27 @@ class DBPediaCrawler:
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     """
 
-    def __init__(self, classes: Dict[str, ClassMetaData], object_properties: Dict[str, ObjectPropertyMetaData]):
-        self.classes = classes
-        self.object_properties = object_properties
+    def __init__(self):
+        self.classes: Dict[str, ClassMetaData] = dict()
+        self.object_properties: Dict[str, ObjectPropertyMetaData] = dict()
+
         self.wrapper = SPARQLWrapper("https://dbpedia.org/sparql")
 
+        directory_path = os.path.join(os.getcwd() + '/metadata')
+
+        with open(f"{directory_path}/Classes.json", "r", encoding='utf8') as file:
+            self.classes = json.load(file)
+
+        with open(f"{directory_path}/Object Properties.json", "r", encoding='utf8') as file:
+            self.object_properties = json.load(file)
+
     def start(self):
-        for cls_iri, cls_metadata in self.classes.items():
-            self.query_class(cls_iri, cls_metadata)
-        for obj_prop_iri, obj_prop_metadata in self.object_properties.items():
-            self.query_object_properties(obj_prop_iri, obj_prop_metadata)
+        print(self.classes)
+        print(self.object_properties)
+        # for cls_iri, cls_metadata in self.classes.items():
+        #     self.query_class(cls_iri, cls_metadata)
+        # for obj_prop_iri, obj_prop_metadata in self.object_properties.items():
+        #     self.query_object_properties(obj_prop_iri, obj_prop_metadata)
 
     def query_class(self, cls_iri: str, cls_metadata: ClassMetaData):
         offset_count = self.get_offset_class_count(cls_iri)
@@ -82,7 +93,8 @@ class DBPediaCrawler:
 
         folder_name = f"{obj_prop_metadata.domain_label}_{obj_prop_metadata.label}­_{obj_prop_metadata.range_label}"
 
-        new_directory_path = os.path.join(os.getcwd() + '/data/Object Properties', folder_name)
+        new_directory_path = os.path.join(
+            os.getcwd() + '/data/Object Properties', folder_name)
 
         os.makedirs(new_directory_path, exist_ok=True)
 

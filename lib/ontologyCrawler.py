@@ -1,8 +1,10 @@
 from typing import Dict
-from lib.utils import ClassMetaData, ObjectPropertyMetaData, Property
+from lib.utils import ClassMetaData, DataEncoder, ObjectPropertyMetaData, Property
 from lxml import etree
 import requests
 from urllib.parse import urlparse
+import os
+import json
 
 
 class OntologyCrawler:
@@ -79,7 +81,21 @@ class OntologyCrawler:
             self.objectPropertiesMetaData[objProperty_iri] = ObjectPropertyMetaData(
                 objProperty_label, objProperty_domain, objProperty_domain_label, objProperty_range, objProperty_range_label)
 
-        return (self.classesMetaData, self.objectPropertiesMetaData)
+            self.dump_metadata_to_file(
+                self.classesMetaData, self.objectPropertiesMetaData)
+
+    def dump_metadata_to_file(self, classesMetaData: Dict[str, ClassMetaData], objectPropertiesMetaData: Dict[str, ObjectPropertyMetaData]):
+        new_directory_path = os.path.join(os.getcwd() + '/metadata')
+
+        os.makedirs(new_directory_path, exist_ok=True)
+
+        with open(f"{new_directory_path}/Classes.json", "w", encoding='utf8') as f:
+            json.dump(classesMetaData, f, indent=4,
+                      ensure_ascii=False, cls=DataEncoder)
+
+        with open(f"{new_directory_path}/Object Properties.json", "w", encoding='utf8') as f:
+            json.dump(objectPropertiesMetaData, f,
+                      indent=4, ensure_ascii=False, cls=DataEncoder)
 
     def get_last_part(self, url):
         parsed_url = urlparse(url)
