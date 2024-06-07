@@ -1,13 +1,14 @@
 from typing import Dict
-from lib.utils import ClassMetaData, Property
+from lib.utils import ClassMetaData, ObjectPropertyMetaData, Property
 from lxml import etree
 import requests
-import json
+from urllib.parse import urlparse
 
 
 class OntologyCrawler:
 
     classesMetaData: Dict[str, ClassMetaData] = dict()
+    objectPropertiesMetaData: Dict[str, ObjectPropertyMetaData] = dict()
 
     def __init__(self, file, url):
         self.file = file
@@ -48,23 +49,38 @@ class OntologyCrawler:
                 "rdfs:label", namespaces=namespaces)[0].text
             dtProperty_domain = dtProperty.xpath(
                 "rdfs:domain/@rdf:resource", namespaces=namespaces)[0]
-            dtProperty_range = dtProperty.xpath(
-                "rdfs:range/@rdf:resource", namespaces=namespaces)[0]
 
             if dtProperty_domain in self.classesMetaData:
-                self.classesMetaData[dtProperty_domain].properties.append(Property(dtProperty_label,dtProperty_iri))
+                self.classesMetaData[dtProperty_domain].properties.append(
+                    Property(dtProperty_label, dtProperty_iri))
 
         objProperties = xml_tree.xpath(
-            '//owl:ObjectProperty', namespaces=namespaces) 
+            '//owl:ObjectProperty', namespaces=namespaces)
 
         for objProperty in objProperties:
-            objProperty_iri = dtProperty.xpath(
+            objProperty_iri = objProperty.xpath(
                 '@rdf:about', namespaces=namespaces)[0]
-            objProperty_label = dtProperty.xpath(
+            objProperty_label = objProperty.xpath(
                 "rdfs:label", namespaces=namespaces)[0].text
-            objProperty_domain = dtProperty.xpath(
+            objProperty_domain = objProperty.xpath(
                 "rdfs:domain/@rdf:resource", namespaces=namespaces)[0]
-            objProperty_range = dtProperty.xpath(
-                "rdfs:range/@rdf:resource", namespaces=namespaces)[0]  
+            objProperty_range = objProperty.xpath(
+                "rdfs:range/@rdf:resource", namespaces=namespaces)[0]
 
-        return self.classesMetaData        
+            objProperty_domain_label = self.get_last_part(objProperty_domain)
+            objProperty_range_label = self.get_last_part(objProperty_range)
+
+            if objProperty_domain in self.classesMetaData:
+                objProperty_domain_label = self.classesMetaData[objProperty_domain].label
+
+            if objProperty_range in self.classesMetaData:
+                objProperty_range_label = self.classesMetaData[objProperty_range].label
+
+            self.objectPropertiesMetaData[objProperty_iri] = ObjectPropertyMetaData(
+                objProperty_label, objProperty_domain, objProperty_domain_label, objProperty_range, objProperty_range_label)
+
+        return (self.classesMetaData, self.objectPropertiesMetaData)
+
+    def get_last_part(self, url):
+        parsed_url = urlparse(url)
+        return parsed_url.path.split('/')[-1]

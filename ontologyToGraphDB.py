@@ -10,10 +10,11 @@ def main():
         ontology_url = config["OntologyUrl"]
 
     ontologyCrawler = OntologyCrawler(ontology_file, ontology_url)
-    classes = ontologyCrawler.start()
+    (classes, object_properties) = ontologyCrawler.start()
 
-    dbPediaCrawler = DBPediaCrawler(classes)
+    dbPediaCrawler = DBPediaCrawler(classes, object_properties)
     dbPediaCrawler.start()
+
 
 if __name__ == "__main__":
     main()
