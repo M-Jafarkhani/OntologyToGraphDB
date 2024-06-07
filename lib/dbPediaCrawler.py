@@ -42,7 +42,7 @@ class DBPediaCrawler:
                 prop.label.replace(' ', '_').lower() + ' }\n'
 
         new_directory_path = os.path.join(
-            os.getcwd() + '/data', cls_metadata.label)
+            os.getcwd() + '/data/Classes', cls_metadata.label)
         os.makedirs(new_directory_path, exist_ok=True)
 
         progress_prefix = f'Fetching Class ({cls_metadata.label}):'
@@ -82,7 +82,7 @@ class DBPediaCrawler:
 
         folder_name = f"{obj_prop_metadata.domain_label}_{obj_prop_metadata.label}­_{obj_prop_metadata.range_label}"
 
-        new_directory_path = os.path.join(os.getcwd() + '/data', folder_name)
+        new_directory_path = os.path.join(os.getcwd() + '/data/Object Properties', folder_name)
 
         os.makedirs(new_directory_path, exist_ok=True)
 
