@@ -1,10 +1,10 @@
 class Property:
     label: str
-    prop_type: str
+    prop_iri: str
 
-    def __init__(self, label, prop_type):
+    def __init__(self, label, prop_iri):
         self.label = label
-        self.prop_type = prop_type
+        self.prop_iri = prop_iri
 
 
 class ClassMetaData:

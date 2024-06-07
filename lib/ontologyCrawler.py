@@ -9,12 +9,11 @@ class OntologyCrawler:
 
     classesMetaData: Dict[str, ClassMetaData] = dict()
 
-    def __init__(self, file, url, propertyMappingsFile):
+    def __init__(self, file, url):
         self.file = file
         self.url = url
-        self.propertyMappingsFile = propertyMappingsFile
 
-    def start(self):
+    def start(self) -> (Dict[str, ClassMetaData]):
         if self.file:
             xml_content = open(self.file, 'r').read()
         elif self.url:
@@ -22,9 +21,6 @@ class OntologyCrawler:
             xml_content = response.content
         else:
             exit()
-
-        with open(self.propertyMappingsFile, 'r') as file:
-            property_mapping = json.load(file)
 
         xml_tree = etree.fromstring(xml_content)
 
@@ -55,16 +51,8 @@ class OntologyCrawler:
             dtProperty_range = dtProperty.xpath(
                 "rdfs:range/@rdf:resource", namespaces=namespaces)[0]
 
-            if dtProperty_range in property_mapping and dtProperty_domain in self.classesMetaData:
-                self.classesMetaData[dtProperty_domain].properties.append(
-                    Property(dtProperty_label, property_mapping[dtProperty_range]))
-
-        for cls_label, cls in self.classesMetaData.items():
-            print(f'------')
-            print(f'{cls_label}')
-            for prop in cls.properties:
-                print(f'{prop.label}-{prop.prop_type}')
-            print(f'------')
+            if dtProperty_domain in self.classesMetaData:
+                self.classesMetaData[dtProperty_domain].properties.append(Property(dtProperty_label,dtProperty_iri))
 
         objProperties = xml_tree.xpath(
             '//owl:ObjectProperty', namespaces=namespaces) 
@@ -77,4 +65,6 @@ class OntologyCrawler:
             objProperty_domain = dtProperty.xpath(
                 "rdfs:domain/@rdf:resource", namespaces=namespaces)[0]
             objProperty_range = dtProperty.xpath(
-                "rdfs:range/@rdf:resource", namespaces=namespaces)[0]      
+                "rdfs:range/@rdf:resource", namespaces=namespaces)[0]  
+
+        return self.classesMetaData        

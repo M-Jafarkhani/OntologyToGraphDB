@@ -5,10 +5,7 @@
          xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 
     <!-- Define the Person class -->
-    <owl:Class rdf:about="http://dbpedia.org/ontology/Person">
-        <rdfs:label>Person</rdfs:label>
-        <rdfs:comment>An individual human being.</rdfs:comment>
-    </owl:Class>
+
 
     <!-- Define the Film class -->
     <owl:Class rdf:about="http://dbpedia.org/ontology/Film">
@@ -19,7 +16,7 @@
     <!-- Define DatatypeProperties for Person -->
 
     <!-- Name of the person -->
-    <owl:DatatypeProperty rdf:about="http://dbpedia.org/ontology/name">
+    <owl:DatatypeProperty rdf:about="http://xmlns.com/foaf/0.1/name">
         <rdfs:label>name</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Person"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
@@ -37,7 +34,7 @@
     <!-- Define DatatypeProperties for Film -->
 
     <!-- Title of the film -->
-    <owl:DatatypeProperty rdf:about="http://dbpedia.org/ontology/title">
+    <owl:DatatypeProperty rdf:about="http://dbpedia.org/property/name">
         <rdfs:label>title</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
@@ -50,14 +47,6 @@
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
         <rdfs:comment>The release date of the film.</rdfs:comment>
-    </owl:DatatypeProperty>
-
-    <!-- Genre of the film -->
-    <owl:DatatypeProperty rdf:about="http://dbpedia.org/ontology/genre">
-        <rdfs:label>genre</rdfs:label>
-        <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-        <rdfs:comment>The genre of the film.</rdfs:comment>
     </owl:DatatypeProperty>
 
     <owl:ObjectProperty rdf:about="http://dbpedia.org/ontology/director">

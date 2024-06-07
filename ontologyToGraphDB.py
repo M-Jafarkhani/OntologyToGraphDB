@@ -1,4 +1,5 @@
 import json
+from lib.dbPediaCrawler import DBPediaCrawler
 from lib.ontologyCrawler import OntologyCrawler
 
 
@@ -8,9 +9,11 @@ def main():
         ontology_file = config["OntologyFile"]
         ontology_url = config["OntologyUrl"]
 
-    crawler = OntologyCrawler(ontology_file, ontology_url, 'propertyMappings.json')
-    crawler.start()
+    ontologyCrawler = OntologyCrawler(ontology_file, ontology_url)
+    classes = ontologyCrawler.start()
 
+    dbPediaCrawler = DBPediaCrawler(classes)
+    dbPediaCrawler.start()
 
 if __name__ == "__main__":
     main()
