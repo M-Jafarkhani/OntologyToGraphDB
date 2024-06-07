@@ -1,7 +1,7 @@
+import pickle
 import time
-from typing import Dict
 from SPARQLWrapper import SPARQLWrapper, JSON
-from lib.utils import ClassMetaData, ObjectPropertyMetaData, printProgressBar
+from lib.utils import ClassMetaData, ObjectPropertyMetaData, printProgressBar, dump_metadata_to_file
 import os
 import json
 import math
@@ -15,26 +15,27 @@ class DBPediaCrawler:
     """
 
     def __init__(self):
-        self.classes: Dict[str, ClassMetaData] = dict()
-        self.object_properties: Dict[str, ObjectPropertyMetaData] = dict()
+        self.classes: dict[str, ClassMetaData] = dict()
+        self.object_properties: dict[str, ObjectPropertyMetaData] = dict()
 
         self.wrapper = SPARQLWrapper("https://dbpedia.org/sparql")
 
         directory_path = os.path.join(os.getcwd() + '/metadata')
 
-        with open(f"{directory_path}/Classes.json", "r", encoding='utf8') as file:
-            self.classes = json.load(file)
+        with open(f"{directory_path}/Classes", "rb") as file:
+            self.classes = pickle.load(file)
 
-        with open(f"{directory_path}/Object Properties.json", "r", encoding='utf8') as file:
-            self.object_properties = json.load(file)
+        with open(f"{directory_path}/Object Properties", "rb") as file:
+            self.object_properties = pickle.load(file)
 
     def start(self):
-        print(self.classes)
-        print(self.object_properties)
-        # for cls_iri, cls_metadata in self.classes.items():
-        #     self.query_class(cls_iri, cls_metadata)
-        # for obj_prop_iri, obj_prop_metadata in self.object_properties.items():
-        #     self.query_object_properties(obj_prop_iri, obj_prop_metadata)
+        for cls_iri, cls_metadata in self.classes.items():
+            self.query_class(cls_iri, cls_metadata)
+        
+        for obj_prop_iri, obj_prop_metadata in self.object_properties.items():
+            self.query_object_properties(obj_prop_iri, obj_prop_metadata)
+        
+        dump_metadata_to_file(self.classes, self.object_properties)
 
     def query_class(self, cls_iri: str, cls_metadata: ClassMetaData):
         offset_count = self.get_offset_class_count(cls_iri)
@@ -52,10 +53,13 @@ class DBPediaCrawler:
                 prop.prop_iri + '>' + ' ?' + \
                 prop.label.replace(' ', '_').lower() + ' }\n'
 
-        new_directory_path = os.path.join(
+        directory_path = os.path.join(
             os.getcwd() + '/data/Classes', cls_metadata.label)
-        os.makedirs(new_directory_path, exist_ok=True)
 
+        os.makedirs(directory_path, exist_ok=True)
+
+        self.classes[cls_iri].folder_path = directory_path
+        
         progress_prefix = f'Fetching Class ({cls_metadata.label}):'
 
         for i in range(offset_count):
@@ -70,7 +74,7 @@ class DBPediaCrawler:
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
 
-            with open(f"{new_directory_path}/{i}", "w", encoding='utf8') as f:
+            with open(f"{directory_path}/{i}", "w", encoding='utf8') as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
 
             time.sleep(0.1)
@@ -93,11 +97,13 @@ class DBPediaCrawler:
 
         folder_name = f"{obj_prop_metadata.domain_label}_{obj_prop_metadata.label}­_{obj_prop_metadata.range_label}"
 
-        new_directory_path = os.path.join(
+        directory_path = os.path.join(
             os.getcwd() + '/data/Object Properties', folder_name)
 
-        os.makedirs(new_directory_path, exist_ok=True)
+        os.makedirs(directory_path, exist_ok=True)
 
+        self.object_properties[obj_prop_iri].folder_path = directory_path
+        
         progress_prefix = f'Fetching Object Property ({folder_name}):'
 
         printProgressBar(0, offset_count, prefix=progress_prefix,
@@ -115,10 +121,11 @@ class DBPediaCrawler:
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
 
-            with open(f"{new_directory_path}/{i}", "w", encoding='utf8') as f:
+            with open(f"{directory_path}/{i}", "w", encoding='utf8') as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
 
             time.sleep(0.1)
+
             printProgressBar(
                 i + 1, offset_count, prefix=progress_prefix, suffix='Complete', length=50)
 

@@ -1,22 +1,18 @@
-from typing import Dict
-from lib.utils import ClassMetaData, DataEncoder, ObjectPropertyMetaData, Property
+from lib.utils import ClassMetaData, ObjectPropertyMetaData, Property, dump_metadata_to_file, get_last_part
 from lxml import etree
 import requests
-from urllib.parse import urlparse
-import os
-import json
 
 
 class OntologyCrawler:
 
-    classesMetaData: Dict[str, ClassMetaData] = dict()
-    objectPropertiesMetaData: Dict[str, ObjectPropertyMetaData] = dict()
+    classesMetaData: dict[str, ClassMetaData] = dict()
+    objectPropertiesMetaData: dict[str, ObjectPropertyMetaData] = dict()
 
     def __init__(self, file, url):
         self.file = file
         self.url = url
 
-    def start(self) -> (Dict[str, ClassMetaData]):
+    def start(self):
         if self.file:
             xml_content = open(self.file, 'r').read()
         elif self.url:
@@ -69,8 +65,8 @@ class OntologyCrawler:
             objProperty_range = objProperty.xpath(
                 "rdfs:range/@rdf:resource", namespaces=namespaces)[0]
 
-            objProperty_domain_label = self.get_last_part(objProperty_domain)
-            objProperty_range_label = self.get_last_part(objProperty_range)
+            objProperty_domain_label = get_last_part(objProperty_domain)
+            objProperty_range_label = get_last_part(objProperty_range)
 
             if objProperty_domain in self.classesMetaData:
                 objProperty_domain_label = self.classesMetaData[objProperty_domain].label
@@ -80,23 +76,6 @@ class OntologyCrawler:
 
             self.objectPropertiesMetaData[objProperty_iri] = ObjectPropertyMetaData(
                 objProperty_label, objProperty_domain, objProperty_domain_label, objProperty_range, objProperty_range_label)
-
-            self.dump_metadata_to_file(
+            
+            dump_metadata_to_file(
                 self.classesMetaData, self.objectPropertiesMetaData)
-
-    def dump_metadata_to_file(self, classesMetaData: Dict[str, ClassMetaData], objectPropertiesMetaData: Dict[str, ObjectPropertyMetaData]):
-        new_directory_path = os.path.join(os.getcwd() + '/metadata')
-
-        os.makedirs(new_directory_path, exist_ok=True)
-
-        with open(f"{new_directory_path}/Classes.json", "w", encoding='utf8') as f:
-            json.dump(classesMetaData, f, indent=4,
-                      ensure_ascii=False, cls=DataEncoder)
-
-        with open(f"{new_directory_path}/Object Properties.json", "w", encoding='utf8') as f:
-            json.dump(objectPropertiesMetaData, f,
-                      indent=4, ensure_ascii=False, cls=DataEncoder)
-
-    def get_last_part(self, url):
-        parsed_url = urlparse(url)
-        return parsed_url.path.split('/')[-1]
