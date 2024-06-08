@@ -1,7 +1,7 @@
 import json
 from lib.dbPediaCrawler import DBPediaCrawler
-from lib.graphDBCawler import GraphDBCawler
-from lib.ontologyCrawler import OntologyCrawler
+from lib.graphDBGenerator import GraphDBGenerator
+from lib.ontologyExtractor import OntologyExtractor
 
 
 def main():
@@ -9,15 +9,13 @@ def main():
         config = json.load(config_file)
         ontology_file = config["OntologyFile"]
         ontology_url = config["OntologyUrl"]
-
-    # ontologyCrawler = OntologyCrawler(ontology_file, ontology_url)
-    # ontologyCrawler.start()
-
+    ontologyExtractor = OntologyExtractor(ontology_file, ontology_url)
+    ontologyExtractor.start()
     # dbPediaCrawler = DBPediaCrawler()
     # dbPediaCrawler.start()
+    graphDBGenerator = GraphDBGenerator()
+    graphDBGenerator.start()
 
-    graphDBCawler = GraphDBCawler()
-    graphDBCawler.start()
 
 if __name__ == "__main__":
     main()

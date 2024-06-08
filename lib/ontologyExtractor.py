@@ -3,7 +3,7 @@ from lxml import etree
 import requests
 
 
-class OntologyCrawler:
+class OntologyExtractor:
 
     classesMetaData: dict[str, ClassMetaData] = dict()
     objectPropertiesMetaData: dict[str, ObjectPropertyMetaData] = dict()
