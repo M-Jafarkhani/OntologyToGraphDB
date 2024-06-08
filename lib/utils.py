@@ -78,14 +78,12 @@ def dump_metadata_to_file(classesMetaData: dict[str, ClassMetaData], objectPrope
 
 
 def get_last_part(url: str):
-    parsed_url = urlparse(url)
-    return parsed_url.path.split('/')[-1]
-
+    #parsed_url = urlparse(url)
+    #return parsed_url.path.split('/')[-1]
+    return url.removeprefix('http://dbpedia.org/resource/')
 
 def sanitize_node_name(node_name: str):
-    if node_name[0].isdigit():
-        node_name = '_' + node_name
-    return re.sub(r'[^a-zA-Z0-9]', '_', node_name)
+    return f"`{node_name}`"
 
 
 def sanitize_edge_name(edge_name: str):

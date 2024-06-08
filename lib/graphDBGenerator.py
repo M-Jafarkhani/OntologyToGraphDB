@@ -52,11 +52,7 @@ class GraphDBGenerator:
                                     class_name = variable.upper()
                                     vars_script += f"IRI" + ":\"" + record_iri + "\","
                                 else:
-                                    if record[f"{variable}"]['type'] == "typed-literal":
-                                        vars_script += f"{variable}" + ":" + \
-                                            record[f"{variable}"]['value'].replace('"',('\'')).replace('\\',('_')) + ","
-                                    else:
-                                        vars_script += f"{variable}" + ":\"" + \
+                                    vars_script += f"{variable}" + ":\"" + \
                                             record[f"{variable}"]['value'].replace('"',('\'')).replace('\\',('\'')) + "\","
                             script += f"CREATE ({node_name}:{class_name} {{{vars_script[:-1]}}})\n"
                         cypher.write(script)
@@ -65,6 +61,7 @@ class GraphDBGenerator:
                         printProgressBar(
                             index + 1, total_count, prefix=progress_prefix, suffix='Complete', length=50)
                         script = ''
+                cypher.write(';')
                 cypher.close()
 
     def create_script_for_object_properties(self):
@@ -102,4 +99,5 @@ class GraphDBGenerator:
                         printProgressBar(
                             index + 1, total_count, prefix=progress_prefix, suffix='Complete', length=50)
                         script = ''
+                cypher.write(';')
                 cypher.close()
