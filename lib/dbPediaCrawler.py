@@ -1,4 +1,5 @@
 import pickle
+import shutil
 import time
 from SPARQLWrapper import SPARQLWrapper, JSON
 from lib.utils import ClassMetaData, ObjectPropertyMetaData, printProgressBar, dump_metadata_to_file
@@ -18,12 +19,14 @@ class DBPediaCrawler:
         self.classes: dict[str, ClassMetaData] = dict()
         self.object_properties: dict[str, ObjectPropertyMetaData] = dict()
         self.wrapper = SPARQLWrapper("https://dbpedia.org/sparql")
-        directory_path = os.path.join(os.getcwd() + '/metadata')
+        currrent_director = os.getcwd()
+        directory_path = os.path.join(currrent_director + '/metadata')
         with open(f"{directory_path}/Classes", "rb") as file:
             self.classes = pickle.load(file)
         with open(f"{directory_path}/Object Properties", "rb") as file:
             self.object_properties = pickle.load(file)
-
+        if os.path.exists(os.path.join(currrent_director + '/data')):    
+            shutil.rmtree(os.path.join(currrent_director + '/data'))
     def start(self):
         for cls_iri, cls_metadata in self.classes.items():
             self.query_class(cls_iri, cls_metadata)
@@ -32,7 +35,6 @@ class DBPediaCrawler:
         dump_metadata_to_file(self.classes, self.object_properties)
 
     def query_class(self, cls_iri: str, cls_metadata: ClassMetaData):
-        offset_count = self.get_offset_class_count(cls_iri)
         cls_var_label = cls_metadata.label.replace(' ', '_').lower()
         select_str = '?' + cls_var_label + ',?' + ',?'.join(prop.label.replace(' ', '_').lower()
                                                             for prop in cls_metadata.properties)
@@ -42,6 +44,13 @@ class DBPediaCrawler:
                 cls_var_label + ' <' + \
                 prop.prop_iri + '>' + ' ?' + \
                 prop.label.replace(' ', '_').lower() + ' }\n'
+        obj_prop_iri_list = []
+        for obj_prop_iri, obj_prop_metadata in self.object_properties.items():
+            if obj_prop_metadata.range_iri == cls_iri:
+                obj_prop_iri_list.append(obj_prop_iri)
+        where_str += ' UNION '.join(
+            [f'{{ ?a <{item}> ?{cls_var_label}}}' for item in obj_prop_iri_list])
+        offset_count = self.get_offset_class_count(cls_var_label, where_str)
         directory_path = os.path.join(
             os.getcwd() + '/data/Classes', cls_metadata.label)
         os.makedirs(directory_path, exist_ok=True)
@@ -49,11 +58,11 @@ class DBPediaCrawler:
         progress_prefix = f'Fetching Class ({cls_metadata.label}):'
         for i in range(offset_count):
             query = """
-                  %s
-                  SELECT DISTINCT %s  
-                  WHERE { %s }
-                  LIMIT 10000
-                  OFFSET  %s0000 """ % (self.namespace, select_str, where_str, str(i))
+                %s
+                SELECT DISTINCT %s  
+                WHERE { %s }
+                LIMIT 10000
+                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, str(i))
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
@@ -96,10 +105,10 @@ class DBPediaCrawler:
             printProgressBar(
                 i + 1, offset_count, prefix=progress_prefix, suffix='Complete', length=50)
 
-    def get_offset_class_count(self, iri: str) -> int:
+    def get_offset_class_count(self, cls_var_label: str, where_str: str) -> int:
         query = """
-            SELECT count (?a)  
-            WHERE {?a a <%s> } """ % iri
+            SELECT COUNT (DISTINCT ?%s)  
+            WHERE { %s } """ % (cls_var_label, where_str)
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()

@@ -11,7 +11,8 @@ class GraphDBGenerator:
     def __init__(self):
         self.classes: dict[str, ClassMetaData] = dict()
         self.object_properties: dict[str, ObjectPropertyMetaData] = dict()
-        directory_path = os.path.join(os.getcwd() + '/metadata')
+        currrent_director = os.getcwd()
+        directory_path = os.path.join(currrent_director + '/metadata')
         with open(f"{directory_path}/Classes", "rb") as file:
             self.classes = pickle.load(file)
         with open(f"{directory_path}/Object Properties", "rb") as file:
