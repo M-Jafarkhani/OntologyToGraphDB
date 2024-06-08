@@ -85,6 +85,5 @@ def get_last_part(url: str):
 def sanitize_node_name(node_name: str):
     return f"`{node_name}`"
 
-
 def sanitize_edge_name(edge_name: str):
     return edge_name.upper().replace(' ','_')

@@ -25,9 +25,9 @@ class DBPediaCrawler:
             self.classes = pickle.load(file)
         with open(f"{directory_path}/Object Properties", "rb") as file:
             self.object_properties = pickle.load(file)
-        if os.path.exists(os.path.join(currrent_director + '/data')):    
+        if os.path.exists(os.path.join(currrent_director + '/data')):
             shutil.rmtree(os.path.join(currrent_director + '/data'))
-    
+
     def start(self):
         for cls_iri, cls_metadata in self.classes.items():
             self.query_class(cls_iri, cls_metadata)
@@ -40,7 +40,7 @@ class DBPediaCrawler:
         select_str = '?' + cls_var_label + ' '
         for prop in cls_metadata.properties:
             prop_label = prop.label.replace(' ', '_').lower()
-            select_str += f" (SAMPLE(?{prop_label}) AS ?{prop_label}) " 
+            select_str += f" (SAMPLE(?{prop_label}) AS ?{prop_label}) "
         where_str = '?' + cls_var_label + ' a ' + '<' + cls_iri + '> .' + '\n'
         for prop in cls_metadata.properties:
             where_str += 'OPTIONAL {' + '?' + \
@@ -66,7 +66,7 @@ class DBPediaCrawler:
                 WHERE { %s }
                 GROUP BY ?%s
                 LIMIT 10000
-                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, cls_var_label ,str(i))
+                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, cls_var_label, str(i))
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()

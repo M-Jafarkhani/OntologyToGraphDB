@@ -26,6 +26,7 @@ class GraphDBGenerator:
         class_directory_path = os.path.join(os.getcwd() + '/cypher')
         os.makedirs(f"{class_directory_path}/Classes/", exist_ok=True)
         for _, cls_metadata in self.classes.items():
+            nodes_set = set()
             progress_prefix = f'Creating script for Class ({cls_metadata.label}):'
             script = ''
             with open(f"{class_directory_path}/Classes/{cls_metadata.label}.cypher", "w+") as cypher:
@@ -54,7 +55,11 @@ class GraphDBGenerator:
                                 else:
                                     vars_script += f"{variable}" + ":\"" + \
                                             record[f"{variable}"]['value'].replace('"',('\'')).replace('\\',('\'')) + "\","
-                            script += f"CREATE ({node_name}:{class_name} {{{vars_script[:-1]}}})\n"
+                            if node_name not in nodes_set:
+                                script += f"CREATE ({node_name}:{class_name} {{{vars_script[:-1]}}})\n"
+                                nodes_set.add(node_name)
+                            else:
+                                continue    
                         cypher.write(script)
                         cypher.flush()
                         time.sleep(0.1)
