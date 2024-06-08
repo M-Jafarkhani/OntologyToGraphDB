@@ -27,6 +27,7 @@ class DBPediaCrawler:
             self.object_properties = pickle.load(file)
         if os.path.exists(os.path.join(currrent_director + '/data')):    
             shutil.rmtree(os.path.join(currrent_director + '/data'))
+    
     def start(self):
         for cls_iri, cls_metadata in self.classes.items():
             self.query_class(cls_iri, cls_metadata)
@@ -36,8 +37,10 @@ class DBPediaCrawler:
 
     def query_class(self, cls_iri: str, cls_metadata: ClassMetaData):
         cls_var_label = cls_metadata.label.replace(' ', '_').lower()
-        select_str = '?' + cls_var_label + ',?' + ',?'.join(prop.label.replace(' ', '_').lower()
-                                                            for prop in cls_metadata.properties)
+        select_str = '?' + cls_var_label + ' '
+        for prop in cls_metadata.properties:
+            prop_label = prop.label.replace(' ', '_').lower()
+            select_str += f" (SAMPLE(?{prop_label}) AS ?{prop_label}) " 
         where_str = '?' + cls_var_label + ' a ' + '<' + cls_iri + '> .' + '\n'
         for prop in cls_metadata.properties:
             where_str += 'OPTIONAL {' + '?' + \
@@ -61,8 +64,9 @@ class DBPediaCrawler:
                 %s
                 SELECT DISTINCT %s  
                 WHERE { %s }
+                GROUP BY ?%s
                 LIMIT 10000
-                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, str(i))
+                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, cls_var_label ,str(i))
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
