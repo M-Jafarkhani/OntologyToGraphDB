@@ -54,10 +54,10 @@ class GraphDBGenerator:
                                 else:
                                     if record[f"{variable}"]['type'] == "typed-literal":
                                         vars_script += f"{variable}" + ":" + \
-                                            record[f"{variable}"]['value'] + ","
+                                            record[f"{variable}"]['value'].replace('"',('\'')).replace('\\',('_')) + ","
                                     else:
                                         vars_script += f"{variable}" + ":\"" + \
-                                            record[f"{variable}"]['value'] + "\","
+                                            record[f"{variable}"]['value'].replace('"',('\'')).replace('\\',('\'')) + "\","
                             script += f"CREATE ({node_name}:{class_name} {{{vars_script[:-1]}}})\n"
                         cypher.write(script)
                         cypher.flush()

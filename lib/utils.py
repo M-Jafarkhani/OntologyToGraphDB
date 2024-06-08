@@ -2,7 +2,7 @@ import pickle
 import os
 import shutil
 from urllib.parse import urlparse
-
+import re
 
 class Property:
     label: str
@@ -85,8 +85,7 @@ def get_last_part(url: str):
 def sanitize_node_name(node_name: str):
     if node_name[0].isdigit():
         node_name = '_' + node_name
-    translation_table = str.maketrans(",()%'–&-!.’+:", "_____________")
-    return node_name.translate(translation_table)
+    return re.sub(r'[^a-zA-Z0-9]', '_', node_name)
 
 
 def sanitize_edge_name(edge_name: str):
