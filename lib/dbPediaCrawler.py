@@ -65,14 +65,13 @@ class DBPediaCrawler:
                 SELECT DISTINCT %s  
                 WHERE { %s }
                 GROUP BY ?%s
-                LIMIT 10000
-                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, cls_var_label, str(i))
+                LIMIT 1000
+                OFFSET  %s000 """ % (self.namespace, select_str, where_str, cls_var_label, str(i))
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
             with open(f"{directory_path}/{i}", "w", encoding='utf8') as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
-            time.sleep(0.1)
             printProgressBar(
                 i + 1, offset_count, prefix=progress_prefix, suffix='Complete', length=50)
 
@@ -98,14 +97,13 @@ class DBPediaCrawler:
                   %s
                   SELECT DISTINCT %s  
                   WHERE { %s }
-                  LIMIT 10000
-                  OFFSET  %s0000 """ % (self.namespace, select_str, where_str, str(i))
+                  LIMIT 1000
+                  OFFSET  %s000 """ % (self.namespace, select_str, where_str, str(i))
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
             with open(f"{directory_path}/{i}", "w", encoding='utf8') as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
-            time.sleep(0.1)
             printProgressBar(
                 i + 1, offset_count, prefix=progress_prefix, suffix='Complete', length=50)
 
@@ -116,13 +114,13 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 10000) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 1000) + 1
 
     def get_offset_objects_count(self, iri: str) -> int:
         query = """
-            SELECT count (DISTINCT ?a)  
+            SELECT COUNT (DISTINCT ?a)  
             WHERE {?a <%s> ?b} """ % iri
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 10000) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 1000) + 1

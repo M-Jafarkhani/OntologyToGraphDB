@@ -10,10 +10,10 @@ def main():
         ontology_file = config["OntologyFile"]
         ontology_url = config["OntologyUrl"]
     
-    # ontologyExtractor = OntologyExtractor(ontology_file, ontology_url)
-    # ontologyExtractor.start()
-    # dbPediaCrawler = DBPediaCrawler()
-    # dbPediaCrawler.start()
+    ontologyExtractor = OntologyExtractor(ontology_file, ontology_url)
+    ontologyExtractor.start()
+    dbPediaCrawler = DBPediaCrawler()
+    dbPediaCrawler.start()
     graphDBGenerator = GraphDBGenerator()
     graphDBGenerator.start()
 
