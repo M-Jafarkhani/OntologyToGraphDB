@@ -37,12 +37,20 @@
 
     <!-- Define DatatypeProperties for Song -->
 
+    <!-- Name of the Song -->
+    <owl:DatatypeProperty rdf:about="http://xmlns.com/foaf/0.1/name">
+        <rdfs:label>Name</rdfs:label>
+        <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Song"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>The title of the film.</rdfs:comment>
+    </owl:DatatypeProperty>
+
     <!-- Title of the Song -->
     <owl:DatatypeProperty rdf:about="http://dbpedia.org/property/name">
         <rdfs:label>Title</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Song"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-        <rdfs:comment>The title of the film.</rdfs:comment>
+        <rdfs:comment>The name of the person.</rdfs:comment>
     </owl:DatatypeProperty>
 
     <!-- Release date of the Song -->
