@@ -113,7 +113,7 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit)) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit))
 
     def get_offset_objects_count(self, iri: str) -> int:
         query = """
@@ -122,4 +122,4 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit)) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit))

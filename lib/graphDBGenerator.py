@@ -18,7 +18,7 @@ class GraphDBGenerator:
         with open(f"{directory_path}/Object Properties", "rb") as file:
             self.object_properties = pickle.load(file)
         if os.path.exists(os.path.join(currrent_director + '/cypher')):
-            shutil.rmtree(os.path.join(currrent_director + '/cypher'))    
+            shutil.rmtree(os.path.join(currrent_director + '/cypher'))
 
     def start(self):
         self.create_script_for_classes()
@@ -27,12 +27,14 @@ class GraphDBGenerator:
     def create_script_for_classes(self):
         class_directory_path = os.path.join(os.getcwd() + '/cypher')
         os.makedirs(f"{class_directory_path}/Classes/", exist_ok=True)
+        all_scripts_file = open(f"{class_directory_path}/All.cypher", "a+")
         for _, cls_metadata in self.classes.items():
             nodes_set = set()
             progress_prefix = f'Creating script for Class ({cls_metadata.label}):'
             folder_path = cls_metadata.folder_path
             total_count = len(os.listdir(folder_path))
-            os.makedirs(f"{class_directory_path}/Classes/{cls_metadata.label}", exist_ok=True)
+            os.makedirs(
+                f"{class_directory_path}/Classes/{cls_metadata.label}", exist_ok=True)
             for index, file_name in enumerate(os.listdir(folder_path)):
                 with open(f"{class_directory_path}/Classes/{cls_metadata.label}/{file_name}.cypher", "w+") as cypher:
                     file_path = os.path.join(folder_path, file_name)
@@ -57,25 +59,32 @@ class GraphDBGenerator:
                                     vars_script += f"IRI" + ":\"" + record_iri + "\","
                                 else:
                                     vars_script += f"{variable}" + ":\"" + \
-                                            record[f"{variable}"]['value'].replace('"',('\'')).replace('\\',('\'')) + "\","
+                                        record[f"{variable}"]['value'].replace(
+                                            '"', ('\'')).replace('\\', ('\'')) + "\","
                             if node_name not in nodes_set:
                                 script += f"CREATE ({node_name}:{class_name} {{{vars_script[:-1]}}})\n"
                                 nodes_set.add(node_name)
                             else:
-                                continue    
+                                continue
                         cypher.write(script)
                         cypher.flush()
+                        all_scripts_file.write(script)
+                        all_scripts_file.flush()
                         time.sleep(0.1)
                         printProgressBar(
                             index + 1, total_count, prefix=progress_prefix, suffix='Complete', length=50)
                     cypher.write(';')
                     cypher.close()
+                    all_scripts_file.write('\n')
+        all_scripts_file.close()
 
     def create_script_for_object_properties(self):
         object_properties_directory_path = os.path.join(
             os.getcwd() + '/cypher')
         os.makedirs(
             f"{object_properties_directory_path}/Object Properties/", exist_ok=True)
+        all_scripts_file = open(
+            f"{object_properties_directory_path}/All.cypher", "a+")
         for _, object_prop_metadata in self.object_properties.items():
             os.makedirs(
                 f"{object_properties_directory_path}/Object Properties/{object_prop_metadata.label}", exist_ok=True)
@@ -104,9 +113,13 @@ class GraphDBGenerator:
                             script += f"CREATE ({subject_node})-[:{edge_name}]->({object_node})\n"
                         cypher.write(script)
                         cypher.flush()
+                        all_scripts_file.write(script)
+                        all_scripts_file.flush()
                         time.sleep(0.1)
                         printProgressBar(
                             index + 1, total_count, prefix=progress_prefix, suffix='Complete', length=50)
                         script = ''
                     cypher.write(';')
+                    all_scripts_file.write('\n')
                     cypher.close()
+        all_scripts_file.close()
