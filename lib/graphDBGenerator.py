@@ -17,6 +17,8 @@ class GraphDBGenerator:
             self.classes = pickle.load(file)
         with open(f"{directory_path}/Object Properties", "rb") as file:
             self.object_properties = pickle.load(file)
+        if os.path.exists(os.path.join(currrent_director + '/cypher')):
+            shutil.rmtree(os.path.join(currrent_director + '/cypher'))    
 
     def start(self):
         self.create_script_for_classes()
@@ -28,7 +30,6 @@ class GraphDBGenerator:
         for _, cls_metadata in self.classes.items():
             nodes_set = set()
             progress_prefix = f'Creating script for Class ({cls_metadata.label}):'
-            
             folder_path = cls_metadata.folder_path
             total_count = len(os.listdir(folder_path))
             os.makedirs(f"{class_directory_path}/Classes/{cls_metadata.label}", exist_ok=True)

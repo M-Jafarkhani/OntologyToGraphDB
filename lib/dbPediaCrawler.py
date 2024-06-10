@@ -13,7 +13,7 @@ class DBPediaCrawler:
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     """
-
+    limit = '10000'
     def __init__(self):
         self.classes: dict[str, ClassMetaData] = dict()
         self.object_properties: dict[str, ObjectPropertyMetaData] = dict()
@@ -64,8 +64,8 @@ class DBPediaCrawler:
                 SELECT DISTINCT %s  
                 WHERE { %s }
                 GROUP BY ?%s
-                LIMIT 10000
-                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, cls_var_label, str(i))
+                LIMIT %s
+                OFFSET  %s%s """ % (self.namespace, select_str, where_str, cls_var_label, self.limit, str(i), self.limit[1:])
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
@@ -96,8 +96,8 @@ class DBPediaCrawler:
                   %s
                   SELECT DISTINCT %s  
                   WHERE { %s }
-                  LIMIT 10009
-                  OFFSET  %s0000 """ % (self.namespace, select_str, where_str, str(i))
+                  LIMIT %s
+                  OFFSET  %s%s """ % (self.namespace, select_str, where_str, self.limit, str(i), self.limit[1:])
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
@@ -113,7 +113,7 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 10000) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit)) + 1
 
     def get_offset_objects_count(self, iri: str) -> int:
         query = """
@@ -122,4 +122,4 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 10000) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit)) + 1
