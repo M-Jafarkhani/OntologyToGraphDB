@@ -1,4 +1,4 @@
-from lib.utils import ClassMetaData, ObjectPropertyMetaData, Property, dump_metadata_to_file, get_last_part
+from lib.utils import *
 from lxml import etree
 import requests
 
@@ -76,6 +76,6 @@ class OntologyExtractor:
 
             self.objectPropertiesMetaData[objProperty_iri] = ObjectPropertyMetaData(
                 objProperty_label, objProperty_domain, objProperty_domain_label, objProperty_range, objProperty_range_label)
-            
+
             dump_metadata_to_file(
                 self.classesMetaData, self.objectPropertiesMetaData)

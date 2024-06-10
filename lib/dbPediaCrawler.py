@@ -1,8 +1,7 @@
 import pickle
 import shutil
-import time
 from SPARQLWrapper import SPARQLWrapper, JSON
-from lib.utils import ClassMetaData, ObjectPropertyMetaData, printProgressBar, dump_metadata_to_file
+from lib.utils import *
 import os
 import json
 import math
@@ -65,8 +64,8 @@ class DBPediaCrawler:
                 SELECT DISTINCT %s  
                 WHERE { %s }
                 GROUP BY ?%s
-                LIMIT 1000
-                OFFSET  %s000 """ % (self.namespace, select_str, where_str, cls_var_label, str(i))
+                LIMIT 10000
+                OFFSET  %s0000 """ % (self.namespace, select_str, where_str, cls_var_label, str(i))
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
@@ -97,8 +96,8 @@ class DBPediaCrawler:
                   %s
                   SELECT DISTINCT %s  
                   WHERE { %s }
-                  LIMIT 1000
-                  OFFSET  %s000 """ % (self.namespace, select_str, where_str, str(i))
+                  LIMIT 10009
+                  OFFSET  %s0000 """ % (self.namespace, select_str, where_str, str(i))
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
@@ -114,7 +113,7 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 1000) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 10000) + 1
 
     def get_offset_objects_count(self, iri: str) -> int:
         query = """
@@ -123,4 +122,4 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 1000) + 1
+        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / 10000) + 1

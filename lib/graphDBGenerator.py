@@ -28,13 +28,15 @@ class GraphDBGenerator:
         for _, cls_metadata in self.classes.items():
             nodes_set = set()
             progress_prefix = f'Creating script for Class ({cls_metadata.label}):'
-            script = ''
-            with open(f"{class_directory_path}/Classes/{cls_metadata.label}.cypher", "w+") as cypher:
-                folder_path = cls_metadata.folder_path
-                total_count = len(os.listdir(folder_path))
-                for index, file_name in enumerate(os.listdir(folder_path)):
+            
+            folder_path = cls_metadata.folder_path
+            total_count = len(os.listdir(folder_path))
+            os.makedirs(f"{class_directory_path}/Classes/{cls_metadata.label}", exist_ok=True)
+            for index, file_name in enumerate(os.listdir(folder_path)):
+                with open(f"{class_directory_path}/Classes/{cls_metadata.label}/{file_name}.cypher", "w+") as cypher:
                     file_path = os.path.join(folder_path, file_name)
                     with open(file_path, "r") as file:
+                        script = ''
                         data = json.load(file)
                         variables = data['head']['vars']
                         bindings = data['results']['bindings']
@@ -65,9 +67,8 @@ class GraphDBGenerator:
                         time.sleep(0.1)
                         printProgressBar(
                             index + 1, total_count, prefix=progress_prefix, suffix='Complete', length=50)
-                        script = ''
-                cypher.write(';')
-                cypher.close()
+                    cypher.write(';')
+                    cypher.close()
 
     def create_script_for_object_properties(self):
         object_properties_directory_path = os.path.join(
@@ -75,13 +76,15 @@ class GraphDBGenerator:
         os.makedirs(
             f"{object_properties_directory_path}/Object Properties/", exist_ok=True)
         for _, object_prop_metadata in self.object_properties.items():
+            os.makedirs(
+                f"{object_properties_directory_path}/Object Properties/{object_prop_metadata.label}", exist_ok=True)
             progress_prefix = f'Creating script for Object Properties ({object_prop_metadata.label}):'
             script = ''
             edge_name = sanitize_node_name(object_prop_metadata.label)
-            with open(f"{object_properties_directory_path}/Object Properties/{object_prop_metadata.label}.cypher", "w+") as cypher:
-                folder_path = object_prop_metadata.folder_path
-                total_count = len(os.listdir(folder_path))
-                for index, file_name in enumerate(os.listdir(folder_path)):
+            folder_path = object_prop_metadata.folder_path
+            for index, file_name in enumerate(os.listdir(folder_path)):
+                with open(f"{object_properties_directory_path}/Object Properties/{object_prop_metadata.label}/{file_name}.cypher", "w+") as cypher:
+                    total_count = len(os.listdir(folder_path))
                     file_path = os.path.join(folder_path, file_name)
                     with open(file_path, "r") as file:
                         data = json.load(file)
@@ -104,5 +107,5 @@ class GraphDBGenerator:
                         printProgressBar(
                             index + 1, total_count, prefix=progress_prefix, suffix='Complete', length=50)
                         script = ''
-                cypher.write(';')
-                cypher.close()
+                    cypher.write(';')
+                    cypher.close()
