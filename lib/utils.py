@@ -13,11 +13,13 @@ class Property:
 
 class ClassMetaData:
     label: str
+    parentClass: str
     properties: list[Property]
     folder_path: str
 
-    def __init__(self, label):
+    def __init__(self, label, parentClass):
         self.label = label
+        self.parentClass = parentClass
         self.properties = list()
 
 

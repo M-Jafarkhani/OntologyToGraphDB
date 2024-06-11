@@ -11,6 +11,13 @@
         <rdfs:comment>An individual human being.</rdfs:comment>
     </owl:Class>
 
+    <!-- Define the Actor class -->
+
+    <owl:Class rdf:about="http://dbpedia.org/ontology/Actor">
+        <rdfs:label>Actor</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://dbpedia.org/ontology/Person"/>
+    </owl:Class>
+
     <!-- Define the Film class -->
     <owl:Class rdf:about="http://dbpedia.org/ontology/Film">
         <rdfs:label>Film</rdfs:label>
@@ -63,7 +70,7 @@
     <owl:ObjectProperty rdf:about="http://dbpedia.org/ontology/starring">
         <rdfs:label>Starring</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
-        <rdfs:range rdf:resource="http://dbpedia.org/ontology/Person"/>
+        <rdfs:range rdf:resource="http://dbpedia.org/ontology/Actor"/>
         <rdfs:comment>Cast member of a Film</rdfs:comment>
     </owl:ObjectProperty>
 

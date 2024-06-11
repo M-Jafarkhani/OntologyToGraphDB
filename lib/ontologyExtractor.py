@@ -35,7 +35,13 @@ class OntologyExtractor:
             class_iri = cls.xpath('@rdf:about', namespaces=namespaces)[0]
             class_label = cls.xpath(
                 "rdfs:label", namespaces=namespaces)[0].text
-            self.classesMetaData[class_iri] = ClassMetaData(label=class_label)
+            subClassOf_element = cls.xpath(
+                "rdfs:subClassOf/@rdf:resource", namespaces=namespaces)
+            parentClass = ''
+            if (len(subClassOf_element) > 0):
+                parentClass = str(subClassOf_element[0])
+            self.classesMetaData[class_iri] = ClassMetaData(
+                label=class_label, parentClass=parentClass)
 
         dtProperties = xml_tree.xpath(
             '//owl:DatatypeProperty', namespaces=namespaces)

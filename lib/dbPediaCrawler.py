@@ -14,6 +14,7 @@ class DBPediaCrawler:
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     """
     limit = '10000'
+
     def __init__(self):
         self.classes: dict[str, ClassMetaData] = dict()
         self.object_properties: dict[str, ObjectPropertyMetaData] = dict()
@@ -35,6 +36,8 @@ class DBPediaCrawler:
         dump_metadata_to_file(self.classes, self.object_properties)
 
     def query_class(self, cls_iri: str, cls_metadata: ClassMetaData):
+        if len(cls_metadata.parentClass) > 0:
+            return
         cls_var_label = cls_metadata.label.replace(' ', '_').lower()
         select_str = '?' + cls_var_label + ' '
         for prop in cls_metadata.properties:
@@ -51,7 +54,15 @@ class DBPediaCrawler:
             if obj_prop_metadata.range_iri == cls_iri:
                 obj_prop_iri_list.append(obj_prop_iri)
         where_str += ' UNION '.join(
-            [f'{{ ?a <{item}> ?{cls_var_label}}}' for item in obj_prop_iri_list])
+            [f'{{ ?a <{item}> ?{cls_var_label}}}\n' for item in obj_prop_iri_list])
+        for subClass_iri, subClass_metadata in self.classes.items():
+            if subClass_metadata.parentClass == cls_iri:
+                where_str += 'OPTIONAL {' + '?' + cls_var_label + \
+                    ' a ' + ' <' + subClass_iri + '>' + ' }\n'
+                where_str += 'BIND(IF(EXISTS { ' + '?' + cls_var_label + \
+                    ' a ' + ' <' + subClass_iri + '> }, 1, 0) AS ?Is_' + \
+                    subClass_metadata.label + ' )\n'
+                select_str += f" (SAMPLE(?Is_{subClass_metadata.label}) AS ?Is_{subClass_metadata.label}) "
         offset_count = self.get_offset_class_count(cls_var_label, where_str)
         directory_path = os.path.join(
             os.getcwd() + '/data/Classes', cls_metadata.label)
@@ -83,14 +94,12 @@ class DBPediaCrawler:
         select_str = '?' + domain_label_var_label + ' ,?' + range_label_var_label
         where_str = '?' + domain_label_var_label + '<' + \
             obj_prop_iri + '> ' + ' ?' + range_label_var_label
-        folder_name = f"{obj_prop_metadata.domain_label}_{obj_prop_metadata.label}­_{obj_prop_metadata.range_label}"
+        folder_name = f"{obj_prop_metadata.domain_label}_{obj_prop_metadata.label}_{obj_prop_metadata.range_label}"
         directory_path = os.path.join(
             os.getcwd() + '/data/Object Properties', folder_name)
         os.makedirs(directory_path, exist_ok=True)
         self.object_properties[obj_prop_iri].folder_path = directory_path
         progress_prefix = f'Fetching Object Property ({folder_name}):'
-        printProgressBar(0, offset_count, prefix=progress_prefix,
-                         suffix='Complete', length=50)
         for i in range(offset_count):
             query = """
                   %s
@@ -107,6 +116,7 @@ class DBPediaCrawler:
                 i + 1, offset_count, prefix=progress_prefix, suffix='Complete', length=50)
 
     def get_offset_class_count(self, cls_var_label: str, where_str: str) -> int:
+        return 1
         query = """
             SELECT COUNT (DISTINCT ?%s)  
             WHERE { %s } """ % (cls_var_label, where_str)
@@ -116,6 +126,7 @@ class DBPediaCrawler:
         return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit))
 
     def get_offset_objects_count(self, iri: str) -> int:
+        return 1
         query = """
             SELECT COUNT (DISTINCT ?a)  
             WHERE {?a <%s> ?b} """ % iri

@@ -29,6 +29,8 @@ class GraphDBGenerator:
         os.makedirs(f"{class_directory_path}/Classes/", exist_ok=True)
         all_scripts_file = open(f"{class_directory_path}/All.cypher", "a+")
         for _, cls_metadata in self.classes.items():
+            if len(cls_metadata.parentClass) > 0:
+                return
             nodes_set = set()
             progress_prefix = f'Creating script for Class ({cls_metadata.label}):'
             folder_path = cls_metadata.folder_path
@@ -48,6 +50,7 @@ class GraphDBGenerator:
                             record_iri = ''
                             class_name = ''
                             node_name = ''
+                            extended_classes = ' '
                             for variable in variables:
                                 if variable not in record:
                                     continue
@@ -57,12 +60,17 @@ class GraphDBGenerator:
                                         get_last_part(record_iri))
                                     class_name = variable.upper()
                                     vars_script += f"IRI" + ":\"" + record_iri + "\","
+                                elif 'Is_' in variable:
+                                    if record[f"{variable}"]['value'] == '1':
+                                        extended_classes += ':' + \
+                                            variable.removeprefix(
+                                                'Is_').upper() + ' '
                                 else:
                                     vars_script += f"{variable}" + ":\"" + \
                                         record[f"{variable}"]['value'].replace(
                                             '"', ('\'')).replace('\\', ('\'')) + "\","
                             if node_name not in nodes_set:
-                                script += f"CREATE ({node_name}:{class_name} {{{vars_script[:-1]}}})\n"
+                                script += f"CREATE ({node_name}:{class_name}{extended_classes} {{{vars_script[:-1]}}})\n"
                                 nodes_set.add(node_name)
                             else:
                                 continue
