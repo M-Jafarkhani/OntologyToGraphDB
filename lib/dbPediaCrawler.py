@@ -116,7 +116,6 @@ class DBPediaCrawler:
                 i + 1, offset_count, prefix=progress_prefix, suffix='Complete', length=50)
 
     def get_offset_class_count(self, cls_var_label: str, where_str: str) -> int:
-        return 1
         query = """
             SELECT COUNT (DISTINCT ?%s)  
             WHERE { %s } """ % (cls_var_label, where_str)
@@ -126,7 +125,6 @@ class DBPediaCrawler:
         return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit))
 
     def get_offset_objects_count(self, iri: str) -> int:
-        return 1
         query = """
             SELECT COUNT (DISTINCT ?a)  
             WHERE {?a <%s> ?b} """ % iri
