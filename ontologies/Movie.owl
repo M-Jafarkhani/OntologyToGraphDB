@@ -18,6 +18,13 @@
         <rdfs:subClassOf rdf:resource="http://dbpedia.org/ontology/Person"/>
     </owl:Class>
 
+    <!-- Define the MusicalArtist class -->
+
+    <owl:Class rdf:about="http://dbpedia.org/ontology/MusicalArtist">
+        <rdfs:label>MusicalArtist</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://dbpedia.org/ontology/Person"/>
+    </owl:Class>
+
     <!-- Define the Film class -->
     <owl:Class rdf:about="http://dbpedia.org/ontology/Film">
         <rdfs:label>Film</rdfs:label>
@@ -72,6 +79,13 @@
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
         <rdfs:range rdf:resource="http://dbpedia.org/ontology/Actor"/>
         <rdfs:comment>Starring in a Film</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://dbpedia.org/ontology/starring">
+        <rdfs:label>MusicalArtistAndActor</rdfs:label>
+        <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
+        <rdfs:range rdf:resource="http://dbpedia.org/ontology/MusicalArtist"/>
+        <rdfs:comment>A Muscial artist starring in a Film</rdfs:comment>
     </owl:ObjectProperty>
 
     <owl:ObjectProperty rdf:about="http://dbpedia.org/ontology/producer">

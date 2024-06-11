@@ -59,10 +59,12 @@ class DBPediaCrawler:
             if subClass_metadata.parentClass == cls_iri:
                 where_str += 'UNION {' + '?' + cls_var_label + \
                     ' a ' + ' <' + subClass_iri + '>' + ' }\n'
+                select_str += f" (SAMPLE(?Is_{subClass_metadata.label}) AS ?Is_{subClass_metadata.label}) "
+        for subClass_iri, subClass_metadata in self.classes.items():
+            if subClass_metadata.parentClass == cls_iri:
                 where_str += 'BIND(IF(EXISTS { ' + '?' + cls_var_label + \
                     ' a ' + ' <' + subClass_iri + '> }, 1, 0) AS ?Is_' + \
-                    subClass_metadata.label + ' )\n'
-                select_str += f" (SAMPLE(?Is_{subClass_metadata.label}) AS ?Is_{subClass_metadata.label}) "
+                    subClass_metadata.label + ' )\n'       
         offset_count = self.get_offset_class_count(cls_var_label, where_str)
         directory_path = os.path.join(
             os.getcwd() + '/data/Classes', cls_metadata.label)
@@ -77,7 +79,6 @@ class DBPediaCrawler:
                 GROUP BY ?%s
                 LIMIT %s
                 OFFSET  %s%s """ % (self.namespace, select_str, where_str, cls_var_label, self.limit, str(i), self.limit[1:])
-            #print(query)
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()
@@ -93,8 +94,11 @@ class DBPediaCrawler:
         range_label_var_label = obj_prop_metadata.range_label.replace(
             ' ', '_').lower()
         select_str = '?' + domain_label_var_label + ' ,?' + range_label_var_label
-        where_str = '?' + domain_label_var_label + '<' + \
-            obj_prop_iri + '> ' + ' ?' + range_label_var_label
+        where_str = """
+            ?%s <%s> ?%s .
+            ?%s a <%s> .
+            ?%s a <%s>
+        """ % (domain_label_var_label, obj_prop_iri, range_label_var_label, domain_label_var_label, obj_prop_metadata.domain_iri, range_label_var_label, obj_prop_metadata.range_iri)
         folder_name = f"{obj_prop_metadata.domain_label}_{obj_prop_metadata.label}_{obj_prop_metadata.range_label}"
         directory_path = os.path.join(
             os.getcwd() + '/data/Object Properties', folder_name)
