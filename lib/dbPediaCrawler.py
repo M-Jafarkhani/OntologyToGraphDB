@@ -57,7 +57,7 @@ class DBPediaCrawler:
             [f'{{ ?a <{item}> ?{cls_var_label}}}\n' for item in obj_prop_iri_list])
         for subClass_iri, subClass_metadata in self.classes.items():
             if subClass_metadata.parentClass == cls_iri:
-                where_str += 'OPTIONAL {' + '?' + cls_var_label + \
+                where_str += 'UNION {' + '?' + cls_var_label + \
                     ' a ' + ' <' + subClass_iri + '>' + ' }\n'
                 where_str += 'BIND(IF(EXISTS { ' + '?' + cls_var_label + \
                     ' a ' + ' <' + subClass_iri + '> }, 1, 0) AS ?Is_' + \
@@ -77,6 +77,7 @@ class DBPediaCrawler:
                 GROUP BY ?%s
                 LIMIT %s
                 OFFSET  %s%s """ % (self.namespace, select_str, where_str, cls_var_label, self.limit, str(i), self.limit[1:])
+            #print(query)
             self.wrapper.setQuery(query)
             self.wrapper.setReturnFormat(JSON)
             results = self.wrapper.query().convert()

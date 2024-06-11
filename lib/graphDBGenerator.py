@@ -30,7 +30,7 @@ class GraphDBGenerator:
         all_scripts_file = open(f"{class_directory_path}/All.cypher", "a+")
         for _, cls_metadata in self.classes.items():
             if len(cls_metadata.parentClass) > 0:
-                return
+                continue
             nodes_set = set()
             progress_prefix = f'Creating script for Class ({cls_metadata.label}):'
             folder_path = cls_metadata.folder_path

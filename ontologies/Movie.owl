@@ -71,7 +71,14 @@
         <rdfs:label>Starring</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
         <rdfs:range rdf:resource="http://dbpedia.org/ontology/Actor"/>
-        <rdfs:comment>Cast member of a Film</rdfs:comment>
+        <rdfs:comment>Starring in a Film</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://dbpedia.org/ontology/producer">
+        <rdfs:label>Producer</rdfs:label>
+        <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Film"/>
+        <rdfs:range rdf:resource="http://dbpedia.org/ontology/Person"/>
+        <rdfs:comment>Producer of a Film</rdfs:comment>
     </owl:ObjectProperty>
 
 </rdf:RDF>
