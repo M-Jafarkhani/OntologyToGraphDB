@@ -21,6 +21,7 @@ class GraphDBGenerator:
             shutil.rmtree(os.path.join(currrent_director + '/cypher'))
 
     def start(self):
+        print('Step 3, Creating Scripts '.ljust(129, '#'))
         self.create_script_for_classes()
         self.create_script_for_object_properties()
 
@@ -32,7 +33,7 @@ class GraphDBGenerator:
             if len(cls_metadata.parentClass) > 0:
                 continue
             nodes_set = set()
-            progress_prefix = f'Creating script for Class ({cls_metadata.label}):'
+            progress_prefix = f'Node: {cls_metadata.label}'.ljust(60)
             folder_path = cls_metadata.folder_path
             total_count = len(os.listdir(folder_path))
             os.makedirs(
@@ -96,7 +97,7 @@ class GraphDBGenerator:
         for _, object_prop_metadata in self.object_properties.items():
             os.makedirs(
                 f"{object_properties_directory_path}/Object Properties/{object_prop_metadata.label}", exist_ok=True)
-            progress_prefix = f'Creating script for Object Properties ({object_prop_metadata.label}):'
+            progress_prefix = f'Edge: {object_prop_metadata.label}'.ljust(60)
             script = ''
             edge_name = sanitize_node_name(object_prop_metadata.label)
             folder_path = object_prop_metadata.folder_path

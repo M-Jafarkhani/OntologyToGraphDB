@@ -1,4 +1,4 @@
 {
-    "OntologyFile": "ontologies/Movie.owl",
+    "OntologyFile": "ontologies/Book.owl",
     "OntologyUrl": "https://raw.githubusercontent.com/M-Jafarkhani/OntologyToGraphDB/main/resources/Movie.owl"
 }

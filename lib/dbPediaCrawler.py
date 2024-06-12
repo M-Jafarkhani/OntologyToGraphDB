@@ -16,6 +16,7 @@ class DBPediaCrawler:
     limit = '10000'
 
     def __init__(self):
+        print('Step 2, Accessing DBPedia '.ljust(129, '#'))
         self.classes: dict[str, ClassMetaData] = dict()
         self.object_properties: dict[str, ObjectPropertyMetaData] = dict()
         self.wrapper = SPARQLWrapper("https://dbpedia.org/sparql")
@@ -49,12 +50,23 @@ class DBPediaCrawler:
                 cls_var_label + ' <' + \
                 prop.prop_iri + '>' + ' ?' + \
                 prop.label.replace(' ', '_').lower() + ' }\n'
-        obj_prop_iri_list = []
+        predicate_on_domain = []
+        predicate_on_domain_target = []
+        predicate_on_range = []
+        predicate_on_range_subject = []
         for obj_prop_iri, obj_prop_metadata in self.object_properties.items():
-            if obj_prop_metadata.range_iri == cls_iri:
-                obj_prop_iri_list.append(obj_prop_iri)
-        where_str += ' UNION '.join(
-            [f'{{ ?a <{item}> ?{cls_var_label}}}\n' for item in obj_prop_iri_list])
+            if obj_prop_metadata.domain_iri == cls_iri:
+                predicate_on_domain.append(obj_prop_iri)
+                predicate_on_domain_target.append(obj_prop_metadata.range_iri)
+            elif obj_prop_metadata.range_iri == cls_iri:
+                predicate_on_range.append(obj_prop_iri)
+                predicate_on_range_subject.append(obj_prop_metadata.domain_iri)
+        where_str += ' UNION '.join(f'{{ ?{cls_var_label} <{predicate}> ?a. ?a a <{object}> }}\n' for predicate,
+                                    object in zip(predicate_on_domain, predicate_on_domain_target))
+        if (len(predicate_on_domain) > 0 and len(predicate_on_range) > 0):
+            where_str += ' UNION '
+        where_str += ' UNION '.join(f'{{ ?a <{predicate}> ?{cls_var_label}. ?a a <{subject}> }}\n' for subject,
+                                    predicate in zip(predicate_on_range_subject, predicate_on_range))
         for subClass_iri, subClass_metadata in self.classes.items():
             if subClass_metadata.parentClass == cls_iri:
                 where_str += 'UNION {' + '?' + cls_var_label + \
@@ -64,13 +76,13 @@ class DBPediaCrawler:
             if subClass_metadata.parentClass == cls_iri:
                 where_str += 'BIND(IF(EXISTS { ' + '?' + cls_var_label + \
                     ' a ' + ' <' + subClass_iri + '> }, 1, 0) AS ?Is_' + \
-                    subClass_metadata.label + ' )\n'       
-        offset_count = self.get_offset_class_count(cls_var_label, where_str)
+                    subClass_metadata.label + ' )\n'
+        total_count, offset_count = self.get_offset_class_count(cls_var_label, where_str)
         directory_path = os.path.join(
             os.getcwd() + '/data/Classes', cls_metadata.label)
         os.makedirs(directory_path, exist_ok=True)
         self.classes[cls_iri].folder_path = directory_path
-        progress_prefix = f'Fetching Class ({cls_metadata.label}):'
+        progress_prefix = f'Node: {cls_metadata.label}, Total: {total_count:,}:'.ljust(60)
         for i in range(offset_count):
             query = """
                 %s
@@ -88,7 +100,7 @@ class DBPediaCrawler:
                 i + 1, offset_count, prefix=progress_prefix, suffix='Complete', length=50)
 
     def query_object_properties(self, obj_prop_iri: str, obj_prop_metadata: ObjectPropertyMetaData):
-        offset_count = self.get_offset_objects_count(obj_prop_iri)
+        total_count, offset_count = self.get_offset_objects_count(obj_prop_iri)
         domain_label_var_label = obj_prop_metadata.domain_label.replace(
             ' ', '_').lower()
         range_label_var_label = obj_prop_metadata.range_label.replace(
@@ -104,7 +116,7 @@ class DBPediaCrawler:
             os.getcwd() + '/data/Object Properties', folder_name)
         os.makedirs(directory_path, exist_ok=True)
         self.object_properties[obj_prop_iri].folder_path = directory_path
-        progress_prefix = f'Fetching Object Property ({folder_name}):'
+        progress_prefix = f'Edge: {folder_name}, Total: {total_count:,}:'.ljust(60)
         for i in range(offset_count):
             query = """
                   %s
@@ -127,7 +139,8 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit))
+        total = int(results["results"]["bindings"][0]["callret-0"]["value"])
+        return (total, math.ceil(total / int(self.limit)))
 
     def get_offset_objects_count(self, iri: str) -> int:
         query = """
@@ -136,4 +149,5 @@ class DBPediaCrawler:
         self.wrapper.setQuery(query)
         self.wrapper.setReturnFormat(JSON)
         results = self.wrapper.query().convert()
-        return math.ceil(int(results["results"]["bindings"][0]["callret-0"]["value"]) / int(self.limit))
+        total = int(results["results"]["bindings"][0]["callret-0"]["value"])
+        return (total, math.ceil(total / int(self.limit)))

@@ -13,6 +13,7 @@ class OntologyExtractor:
         self.url = url
 
     def start(self):
+        print('Step 1, Crawling Ontology '.ljust(129, '#'))
         if self.file:
             xml_content = open(self.file, 'r').read()
         elif self.url:
