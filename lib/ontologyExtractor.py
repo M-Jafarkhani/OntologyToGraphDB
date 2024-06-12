@@ -83,5 +83,10 @@ class OntologyExtractor:
             self.objectPropertiesMetaData[objProperty_iri] = ObjectPropertyMetaData(
                 objProperty_label, objProperty_domain, objProperty_domain_label, objProperty_range, objProperty_range_label)
 
-            dump_metadata_to_file(
-                self.classesMetaData, self.objectPropertiesMetaData)
+        for _, cls_metadata in self.classesMetaData.items():
+            if len(cls_metadata.parentClass) > 0:
+                self.classesMetaData[cls_metadata.parentClass].properties.extend(
+                    cls_metadata.properties)
+
+        dump_metadata_to_file(self.classesMetaData,
+                              self.objectPropertiesMetaData)

@@ -4,22 +4,16 @@
          xmlns:owl="http://www.w3.org/2002/07/owl#"
          xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 
-    <!-- Define the Band class -->
-
     <owl:Class rdf:about="http://dbpedia.org/ontology/Band">
         <rdfs:label>Band</rdfs:label>
         <rdfs:comment>Music Bbnd</rdfs:comment>
     </owl:Class>
 
-    <!-- Define the Song class -->
     <owl:Class rdf:about="http://dbpedia.org/ontology/Album">
         <rdfs:label>Album</rdfs:label>
         <rdfs:comment>A music album.</rdfs:comment>
     </owl:Class>
 
-    <!-- Define DatatypeProperties for Artist -->
-
-    <!-- Name of the Band -->
     <owl:DatatypeProperty rdf:about="http://xmlns.com/foaf/0.1/name">
         <rdfs:label>Name</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Band"/>
@@ -27,7 +21,6 @@
         <rdfs:comment>The name of the person.</rdfs:comment>
     </owl:DatatypeProperty>
 
-    <!-- Start date -->
     <owl:DatatypeProperty rdf:about="http://dbpedia.org/ontology/activeYearsStartYear">
         <rdfs:label>Start</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Band"/>
@@ -35,7 +28,6 @@
         <rdfs:comment>Start date.</rdfs:comment>
     </owl:DatatypeProperty>
 
-    <!-- End date -->
     <owl:DatatypeProperty rdf:about="http://dbpedia.org/ontology/activeYearsEndYear">
         <rdfs:label>End</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Band"/>
@@ -43,9 +35,6 @@
         <rdfs:comment>End date.</rdfs:comment>
     </owl:DatatypeProperty>
 
-    <!-- Define DatatypeProperties for Album -->
-
-    <!-- Name of the Song -->
     <owl:DatatypeProperty rdf:about="http://xmlns.com/foaf/0.1/name">
         <rdfs:label>Title</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Album"/>
@@ -53,7 +42,6 @@
         <rdfs:comment>The title of the film.</rdfs:comment>
     </owl:DatatypeProperty>
 
-    <!-- Release date of the Song -->
     <owl:DatatypeProperty rdf:about="http://dbpedia.org/ontology/releaseDate">
         <rdfs:label>Release Date</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Album"/>
