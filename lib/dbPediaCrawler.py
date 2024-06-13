@@ -123,7 +123,9 @@ class DBPediaCrawler:
             os.getcwd() + '/data/Object Properties', folder_name)
         os.makedirs(directory_path, exist_ok=True)
         for index, item in enumerate(self.object_properties):
-            if item.iri == obj_prop_metadata.iri:
+            if item.iri == obj_prop_metadata.iri and \
+                    item.domain_iri == obj_prop_metadata.domain_iri and \
+                        item.range_iri == obj_prop_metadata.range_iri:
                 self.object_properties[index].folder_path = directory_path
                 break
         total_count, offset_count = self.get_offset_objects_count(

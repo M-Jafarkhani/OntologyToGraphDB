@@ -17,6 +17,8 @@ class GraphDBGenerator:
             self.classes = pickle.load(file)
         with open(f"{directory_path}/Object Properties", "rb") as file:
             self.object_properties = pickle.load(file)
+            for i in self.object_properties:
+                print()
         if os.path.exists(os.path.join(currrent_director + '/cypher')):
             shutil.rmtree(os.path.join(currrent_director + '/cypher'))
 
