@@ -6,7 +6,7 @@ import requests
 class OntologyExtractor:
 
     classesMetaData: dict[str, ClassMetaData] = dict()
-    objectPropertiesMetaData: dict[str, ObjectPropertyMetaData] = dict()
+    objectPropertiesMetaData: list[ObjectPropertyMetaData] = []
 
     def __init__(self, file, url):
         self.file = file
@@ -81,8 +81,8 @@ class OntologyExtractor:
             if objProperty_range in self.classesMetaData:
                 objProperty_range_label = self.classesMetaData[objProperty_range].label
 
-            self.objectPropertiesMetaData[objProperty_iri] = ObjectPropertyMetaData(
-                objProperty_label, objProperty_domain, objProperty_domain_label, objProperty_range, objProperty_range_label)
+            self.objectPropertiesMetaData.append(ObjectPropertyMetaData(
+                objProperty_iri, objProperty_label, objProperty_domain, objProperty_domain_label, objProperty_range, objProperty_range_label))
 
         for _, cls_metadata in self.classesMetaData.items():
             if len(cls_metadata.parentClass) > 0:

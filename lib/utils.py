@@ -24,6 +24,7 @@ class ClassMetaData:
 
 
 class ObjectPropertyMetaData:
+    iri: str
     label: str
     domain_iri: str
     domain_label: str
@@ -31,7 +32,8 @@ class ObjectPropertyMetaData:
     range_label: str
     folder_path: str
 
-    def __init__(self, label, domain_iri, domain_label, range_iri, range_label):
+    def __init__(self, iri, label, domain_iri, domain_label, range_iri, range_label):
+        self.iri = iri
         self.label = label
         self.domain_iri = domain_iri
         self.domain_label = domain_label
@@ -50,7 +52,7 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
         print()
 
 
-def dump_metadata_to_file(classesMetaData: dict[str, ClassMetaData], objectPropertiesMetaData: dict[str, ObjectPropertyMetaData]):
+def dump_metadata_to_file(classesMetaData: dict[str, ClassMetaData], objectPropertiesMetaData: list[ObjectPropertyMetaData]):
     new_directory_path = os.path.join(os.getcwd() + '/metadata')
 
     if os.path.exists(new_directory_path):

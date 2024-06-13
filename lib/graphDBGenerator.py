@@ -10,7 +10,7 @@ class GraphDBGenerator:
 
     def __init__(self):
         self.classes: dict[str, ClassMetaData] = dict()
-        self.object_properties: dict[str, ObjectPropertyMetaData] = dict()
+        self.object_properties: list[ObjectPropertyMetaData] = []
         currrent_director = os.getcwd()
         directory_path = os.path.join(currrent_director + '/metadata')
         with open(f"{directory_path}/Classes", "rb") as file:
@@ -94,7 +94,7 @@ class GraphDBGenerator:
             f"{object_properties_directory_path}/Object Properties/", exist_ok=True)
         all_scripts_file = open(
             f"{object_properties_directory_path}/All.cypher", "a+")
-        for _, object_prop_metadata in self.object_properties.items():
+        for object_prop_metadata in self.object_properties:
             os.makedirs(
                 f"{object_properties_directory_path}/Object Properties/{object_prop_metadata.label}", exist_ok=True)
             progress_prefix = f'Edge: {object_prop_metadata.label}'.ljust(60)
