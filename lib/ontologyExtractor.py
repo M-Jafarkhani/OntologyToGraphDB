@@ -4,15 +4,73 @@ import requests
 
 
 class OntologyExtractor:
+    """
+    A Python class for extracting metadata from an OWL-based RDF/XML ontology, and saving them into binary files.
+
+    ...
+
+    Attributes
+    ----------
+    classesMetaData: dict[str, ClassMetaData]
+        A dictionary for storing metadata of classes, with class IRI as the key and their metadata as values.
+
+    objectPropertiesMetaData: list[ObjectPropertyMetaData]
+        A list for storing metadata of object properties.
+
+    Methods
+    -------
+    start() -> None:
+        Starts the metadata-extraction process.
+
+    """
 
     classesMetaData: dict[str, ClassMetaData] = dict()
     objectPropertiesMetaData: list[ObjectPropertyMetaData] = []
 
-    def __init__(self, file, url):
+    def __init__(self, file: str, url: str) -> None:
+        """
+        Initilaizes the self.file and self.url properties
+
+        Parameters
+        ----------
+        file: str
+            relative file path to the ontology. 
+
+        url: str
+            URL of the ontology.
+        """
         self.file = file
         self.url = url
 
-    def start(self):
+    def start(self) -> None:
+        """
+        Starts the metadata-extraction process from the specified ontology. Note that ontologies should
+        be given in RDF/XML format and match the structure of DBPedia. TO get started, some sample ontologies
+        are already given in 'ontologies' folder. If the file path is specified, we read from file, otherwise 
+        we read from URL. We extract these metadata using XPATH and save thethe objects into 'metadata' folder.
+
+        We extract the following information from the ontology using XPATH:
+            
+            - owl:class: Corresponds to a class. We extract :
+                -- @rdf:about: Class IRI.
+                -- rdfs:label: Label of the class.
+                -- rdfs:subClassOf/@rdf:resource: Parent class IRI, if it is a subclass.
+            
+            - owl:DatatypeProperty: Corresponds to class attributes.  We extract :
+                -- @rdf:about: IRI of the attribute.
+                -- rdfs:label: Label of the attribute.
+                -- rdfs:domain/@rdf:resource: Refers to its class IRI.
+
+            - owl:ObjectProperty: Corresponds to relationships between classes.  We extract : 
+                -- @rdf:about: Relation IRI.
+                -- rdfs:label: Label of the relation. 
+                -- rdfs:domain/@rdf:resource: Domain of the relation, which is a class IRI. 
+                -- rdfs:range/@rdf:resource: Range of the relation, , which is a class IRI.
+        Parameters
+        ----------
+        None
+        """
+
         print('Step 1, Crawling Ontology '.ljust(129, '#'))
         if self.file:
             xml_content = open(self.file, 'r').read()

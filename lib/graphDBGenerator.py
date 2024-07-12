@@ -6,9 +6,39 @@ import json
 
 
 class GraphDBGenerator:
+    """
+    A Python class for creating Neo4j cypher files from JSON data.
+
+    ...
+
+    Attributes
+    ----------
+    dbPedia_uri : str
+        The prefix URI of instances in DBPedia. We ignore those instances that their IRI has not this prefix.
+
+    Methods
+    -------
+    start() -> None:
+        Starts the script-generation process.
+
+    create_script_for_classes() -> None:
+        Creates cypher files for nodes from extracted JSON data.
+
+    create_script_for_object_properties() -> None:
+        Creates cypher files for edges from extracted JSON data.
+    """
+
     dbPedia_uri = 'http://dbpedia.org/resource'
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Here we populate self.classes and self.object_properties dictionries, from "metadata/Classes" and 
+        "metadata/Object Properties" files, respectively. We also delete the "cypher" folder, if it already exists.
+
+        Parameters
+        ----------
+        None
+        """
         self.classes: dict[str, ClassMetaData] = dict()
         self.object_properties: list[ObjectPropertyMetaData] = []
         currrent_director = os.getcwd()
@@ -20,12 +50,29 @@ class GraphDBGenerator:
         if os.path.exists(os.path.join(currrent_director + '/cypher')):
             shutil.rmtree(os.path.join(currrent_director + '/cypher'))
 
-    def start(self):
+    def start(self) -> None:
+        """
+        Starts the cypher-file-generation process. We read the JSON data from "data" folder and create corresponding 
+        neo4j cypher files into separate folders. We also create a "All.cypher" file which contains all the scripts, combined.
+
+        Parameters
+        ----------
+        None
+        """
         print('Step 3, Creating Scripts '.ljust(129, '#'))
         self.create_script_for_classes()
         self.create_script_for_object_properties()
 
-    def create_script_for_classes(self):
+    def create_script_for_classes(self) -> None:
+        """
+        We read JSON data that are in "data/Classes" folder for each class, and then generate the script for nodes.
+        Each class record corresponds to one node in the final cypher file. 
+        At the end, each offset file in the "data/Classes" is mapped to one cypher file, named with its offset.
+        
+        Parameters
+        ----------
+        None
+        """
         class_directory_path = os.path.join(os.getcwd() + '/cypher')
         os.makedirs(f"{class_directory_path}/Classes/", exist_ok=True)
         all_scripts_file = open(f"{class_directory_path}/All.cypher", "a+")
@@ -87,7 +134,16 @@ class GraphDBGenerator:
                     all_scripts_file.write('\n')
         all_scripts_file.close()
 
-    def create_script_for_object_properties(self):
+    def create_script_for_object_properties(self) -> None:
+        """
+        We read JSON data that are in "data/Object Properties" folder for each relation, and then generate the script for edges.
+        Each object property record corresponds to one edge in the final cypher file. 
+        At the end, each offset file in the "data/Properties" is mapped to one cypher file, named with its offset.
+
+        Parameters
+        ----------
+        None
+        """
         object_properties_directory_path = os.path.join(
             os.getcwd() + '/cypher')
         os.makedirs(
